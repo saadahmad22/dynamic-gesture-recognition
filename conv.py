@@ -6,16 +6,22 @@ Credits: osmr on github
 from config import nn
 
 def conv_builder(
-    in_channels,
-    out_channels,
-    kernel_size=1,
-    stride=1,
-    padding=1,
-    dilation=1,
+    in_channels: int,
+    out_channels: int,
+    kernel_size: int | tuple=1,
+    stride: int | tuple=1,
+    padding: int | tuple | str=0,
+    padding_mode: str='zeros',
+    dilation: int | tuple=1,
     groups=1,
-    bias=False) -> nn.Conv2d:
+    bias=True) -> nn.Conv2d:
     """Create a convolution layer.
     
+    For the parameters, in case a tuple is taken the first value is for the height and the second for the width.
+
+    When groups == in_channels and out_channels == K * in_channels, 
+    where K is a positive integer, this operation is also known as a “depthwise convolution”
+
     Parameters:
     ----------
     in_channels : int
@@ -28,83 +34,27 @@ def conv_builder(
         Stride of the convolution.
     padding : int or tuple of int
         Padding value for convolution layer.
+        - If int: uses the same padding in all directions.
+        - If tuple: provides the padding separately for the height and width.
+        - If str: 
+            "valid" (i.e., 0), 
+            "same" (pads the input so the output has the shape as the input).
+                - This mode doesn't support any stride values other than 1
+    padding_mode : str
+        Padding mode for convolution layer.
+        - 'zeros', 'reflect', 'replicate' or 'circular'.
     dilation : int or tuple of int
         Dilation value for convolution layer.
     groups : int
-        Number of groups.
+        Number of blocked connections from input channels to output channels.
     bias : bool
-        Whether the layer uses a bias vector.
+        f True, adds a learnable bias to the output
     """
 
     return nn.Conv2d(
         in_channels=in_channels,
         out_channels=out_channels,
         kernel_size=kernel_size,
-        stride=stride,
-        padding=padding,
-        dilation=dilation,
-        groups=groups,
-        bias=bias)
-
-
-def conv1x1(in_channels,
-            out_channels,
-            stride=1,
-            groups=1,
-            bias=False):
-    """
-    Convolution 1x1 layer.
-
-    Parameters:
-    ----------
-    in_channels : int
-        Number of input channels.
-    out_channels : int
-        Number of output channels.
-    stride : int or tuple/list of 2 int, default 1
-        Strides of the convolution.
-    groups : int, default 1
-        Number of groups.
-    bias : bool, default False
-        Whether the layer uses a bias vector.
-    """
-    return nn.Conv2d(
-        in_channels=in_channels,
-        out_channels=out_channels,
-        kernel_size=1,
-        stride=stride,
-        groups=groups,
-        bias=bias)
-
-def conv3x3(in_channels,
-            out_channels,
-            stride=1,
-            padding=1,
-            dilation=1,
-            groups=1,
-            bias=False):
-    """
-    Convolution 3x3 layer.
-
-    Parameters:
-    ----------
-    in_channels : int
-        Number of input channels.
-    out_channels : int
-        Number of output channels.
-    stride : int or tuple/list of 2 int, default 1
-        Strides of the convolution.
-    padding : int or tuple/list of 2 int, default 1
-        Padding value for convolution layer.
-    groups : int, default 1
-        Number of groups.
-    bias : bool, default False
-        Whether the layer uses a bias vector.
-    """
-    return nn.Conv2d(
-        in_channels=in_channels,
-        out_channels=out_channels,
-        kernel_size=3,
         stride=stride,
         padding=padding,
         dilation=dilation,
